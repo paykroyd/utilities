@@ -237,7 +237,6 @@ def db_select(conn, sql):
         end = s.index(' from')
         return [v.strip() for v in sql[start:end].split(',')]
 
-    cur = conn.execute(sql)
     fields = extract_fields()
     return [dict(zip(fields, result)) for result in conn.execute(sql).fetchall()]
 
@@ -248,6 +247,14 @@ def expect(expected, actual, error_message=None):
     """
     if expected != actual:
         raise ValueError('%s: "%s" expected but was "%s"' % (error_message or '', expected, actual))
+
+
+def expect_that(expr, error_message=None):
+    """
+    A version of expect that simply takes a boolean expression rather than testing equality.
+    """
+    if not expr:
+        raise ValueError(error_message or 'Invalid state.')
 
 
 def str_ellipsize(string, length):
@@ -371,11 +378,25 @@ def todate(datestr):
     return datetime.strptime(datestr, '%Y-%m-%d')
 
 
+def todatetime(dtstr):
+    """
+    Parses a string in the format YYYY-mm-dd hh-mm-ss and returns a datetime.
+    """
+    return datetime.strptime(dtstr, '%Y-%m-%d %H-%M-%s')
+
+
 def fromdate(date):
     """
     Returns a string from a date object in YYYY-mm-dd format.
     """
     return date.strftime('%Y-%m-%d')
+
+
+def fromdatetime(dt):
+    """
+    Returns a string from a datetime object in YYYY-mm-dd hh:mm:ss format.
+    """
+    return dt.strftime('%Y-%m-%d %H-%M-%S')
 
 
 def parsedate(datestr):
@@ -399,27 +420,6 @@ def first_day_of_week(d):
     Returns the first day of the week that d is in.
     """
     return d - timedelta(days=d.weekday())
-
-
-def db_insert(conn, table, value):
-    """
-    Inserts a dict-based record into the table. Commit is not called.
-
-    The function assumes that the fields of the dict map those of the table.
-
-    :param conn: sqlite3 connection or cursor
-    :param table: string name of table
-    :param value: dict representing the record to insert
-    """
-    fields = []
-    placeholders = []
-    values = []
-    for name, val in value.items():
-        fields.append(name)
-        values.append(val)
-        placeholders.append('?')
-    sql = 'INSERT INTO %s (%s) VALUES (%s)' % (table, ','.join(fields), ','.join(placeholders))
-    conn.execute(sql, values)
 
 
 def domain_from_url(url):
