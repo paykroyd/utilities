@@ -105,33 +105,7 @@ def find_start_of_circular_list(l):
     Given a circular, ordered list (e.g, 7, 8, 9, 0, 1, 4, 5). Find the start index.
     """
     # 7 8 2 3 4 4 5 6 6 7
-    #         ^
-    def f(pivot, start, end):
-        p = l[pivot]
-
-        # try to figure out if it's this is the start
-        if l[pivot] < l[pivot - 1]:
-            return pivot
-
-        if pivot != start:
-            left_pivot = start + ((pivot - start) / 2)
-        else:
-            left_pivot = None
-
-        if pivot + 1 != end:
-            right_pivot = pivot + ((end - pivot) / 2)
-        else:
-            right_pivot = None
-
-        if not(right_pivot is not None and l[right_pivot] < p) \
-           and left_pivot is not None:
-            val = f(left_pivot, start, pivot)
-            if val is not None:
-                return val
-
-        if right_pivot is not None:
-            return f(right_pivot, pivot + 1, end)
-
-        return None
-
-    return f(len(l) / 2, 0, len(l))
+    #     ^
+    for i in range(0, len(l)):
+        if l[i] < l[i - 1]:
+            return i
